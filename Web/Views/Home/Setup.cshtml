@@ -1,0 +1,34 @@
+﻿@{
+	ViewBag.Title = "Setup";
+}
+
+<h1>Setup</h1>
+
+<p class="lead">
+	<a class="btn btn-primary btn-lg" role="button" href="/Home/Requirements">View The Requirements</a>
+</p>
+
+<h2>Technical Requirements</h2>
+<p>
+	This project requires the following:
+</p>
+<ol>
+	<li>Visual Studio 2017 or 2019 (<i>Community Edition should be fine</i>)</li>
+	<li>SQL Server Express LocalDb (<i>any SQL database will work, but if you don't use LocalDb you'll have to modify the connection string in web.config</i>)</li>
+</ol>
+
+<h2>Setting up the database</h2>
+<p>
+	If you haven't done so yet, you'll need to set up the database used by this application. To do this:
+</p>
+<ol>
+	<li>Open the solution in Visual Studio</li>
+	<li>Open the Package Manager Console (<i>Tools -&gt; NuGet Package Manager -&gt; Package Manager Console</i>)</li>
+	<li>Make sure <b>Core</b> is selected as the Default Project (<i>you'll get errors otherwise</i>)</li>
+	<li>Execute the <b>Update-Database</b> command, which will create and seed a local database</li>
+</ol>
+<img src="~/Content/Heuristics.TechEval.docs-migrations.png" />
+
+<div class="alert alert-warning" role="alert">
+	<b>If you get errors</b> during the Update-Database command, make sure that the Package Console window is attached to the "Core" project as shown here.
+</div>

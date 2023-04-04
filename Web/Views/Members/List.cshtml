@@ -1,0 +1,171 @@
+﻿@model Heuristics.TechEval.Web.Models.MemberCategoryViewModel
+
+@{
+    ViewBag.Title = "Members";
+}
+
+<h1>Member List</h1>
+
+<button type="button" class="btn btn-primary pull-right addUpdateMemberModal" data-toggle="modal" data-target="#NewMemberModal">Add Member</button>
+<table class="table table-striped table-bordered table-hover" id="members-table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Category</th>
+            <th scope="col">Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var member in Model.Members)
+        {
+            <tr>
+                <td scope="row" class="id">@member.Id</td>
+                <td class="name">@member.Name</td>
+                <td class="email">@member.Email</td>
+                <td class="email">@member.Category.Name</td>
+                <td class="edit"><a class="glyphicon-edit editmember" href="#"></a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="NewMemberModal">
+    <div class="modal-dialog" role="document">
+        <form id="NewMemberForm" action="/Members/Save" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Member</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="Name">Member Name</label>
+                        <input type="text" class="form-control" id="Name" name="Name" placeholder="John Smith" />
+                        <div id="name-feedback" class="invalid-feedback"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Email">Email Address</label>
+                        <input type="email" class="form-control" id="Email" name="Email" placeholder="you@awesome.com" />
+                        <div id="email-feedback" class="invalid-feedback"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Category">Category</label>
+                        <select class="form-control" id="category" name="category">
+                            @foreach (var category in Model.Categories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        </select>
+                        <div id="category-feedback" class="invalid-feedback"></div>
+                    </div>
+                        <input type="hidden" id="MemberId" name="MemberId" />
+
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-primary" value="Save" />
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var RequestStatus = "";
+        $('#NewMemberModal').on('shown.bs.modal', function () {
+            if (RequestStatus === "") {
+                $('#NewMemberForm')[0].reset();
+
+            }
+        });
+        $('#NewMemberModal').on('hidden.bs.modal', function () {
+            $('#NewMemberForm')[0].reset();
+            RequestStatus = "";
+            $('#NewMemberForm').validate().resetForm();
+        });
+
+
+        //Event for Edit Member
+        $(".editmember").on("click", function () {
+            const $modalTitle = $(".modal-title");
+            const [memberId, name, email,Category] = $(this).parent().siblings('td').map((i, td) => $(td).text()).get();
+
+            $modalTitle.text("Update Member");
+            $("#MemberId").val(memberId);
+            $("#Name").val(name);
+            $("#Email").val(email);
+            
+            var categoryDropdown = $('#category');
+            var option = categoryDropdown.find(`option:contains("${Category}")`);
+            option.attr('selected', true);
+
+
+            $(".addUpdateMemberModal").click();
+            RequestStatus = "Update";
+        });
+
+        $("#NewMemberForm").ajaxForm({
+
+            beforeSubmit: function (arr, $form, options) {
+                // Validate the form before submission
+                return $form.valid();
+            },
+
+            error: function (xhr, status, error) {
+                // Handle form submission error
+                //alert("Error: " + error);
+                var errors = xhr.responseJSON;
+                if (errors) {
+                    //for (var i = 0; i < errors.length; i++) {
+                        alert(`Errors : \n ${errors.Email ?? ''} \n ${errors.Name ?? ''}`)
+                    //}
+                }
+            },
+            success: function (formData, jqForm, options) {
+                //$("#MemberId").val(0);
+
+                // sure would be nice if we didn't have to reload the whole page...
+               document.location.reload();
+            }
+        });
+
+        $("#NewMemberForm").validate({
+            rules: {
+                Name: {
+                    required: true,
+                    minlength: 3
+                },
+                Email: {
+                    required: true,
+                    email: true
+                }
+                // add more validation rules for other form fields here
+            },
+            messages: {
+                Name: {
+                    required: "Please enter your name",
+                },
+                Email: {
+                    required: "Please enter your email address",
+                    email: "Please enter a valid email address"
+                }
+                // add more validation messages for other form fields here
+            },
+            errorElement: "div", // use a <div> element to display validation errors
+            errorClass: "invalid-feedback", // use Bootstrap's "invalid-feedback" class for validation errors
+            highlight: function (element, errorClass, validClass) {
+                // Add the "is-invalid" class to the form field when it has an error
+                $(element).addClass("is-invalid");
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                // Remove the "is-invalid" class from the form field when the error is corrected
+                $(element).removeClass("is-invalid");
+            }
+        });
+    });
+</script>

@@ -1,0 +1,16 @@
+-- Identify the Members with duplicate addresses
+SELECT MEMBER_ID, label, MAX(MODIFIED_ON) AS MAX_MODIFIED
+  FROM MEMBER_ADDRESS
+  group by Member_ID,LABEL
+
+-- Delete Enteries that are duplicate but are not the latest
+DELETE M1
+FROM MEMBER_ADDRESS M1
+JOIN (
+  SELECT MEMBER_ID, label, MAX(MODIFIED_ON) AS MAX_MODIFIED
+  FROM MEMBER_ADDRESS
+  group by Member_ID,LABEL
+) M2 ON M1.MEMBER_ID = M2.MEMBER_ID AND M1.LABEL = M2.LABEL AND M1.MODIFIED_ON <> M2.MAX_MODIFIED;
+
+-- Create UNIQUE INDEX 
+CREATE UNIQUE INDEX idx_member_address ON MEMBER_ADDRESS (MEMBER_ID, LABEL);
